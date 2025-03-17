@@ -12,7 +12,7 @@ from PIL import Image
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset = load_dataset("huggan/smithsonian_butterflies_subset", split="train")
 
-image_size = 128
+image_size = 96
 batch_size = 64
 num_epoch = 30
 
@@ -23,13 +23,13 @@ def show_images(x):
     grid_im = Image.fromarry(np.array(grid_im).astype(np.uint8))
     return grid_im
 
-def make_grid(images, size=64):
+def make_grid(images, size=image_size):
     output_im = Image.new("RGB", (size * len(images), size))
     for i, im in enumerate(images):
         output_im.paste(im.resize((size, size)), (i * size, 0))
     return output_im
 
-def transform(examples, image_size=32):
+def transform(examples, image_size=image_size):
     preprocess = transforms.Compose(
         [
             transforms.Resize((image_size, image_size)),
@@ -41,7 +41,7 @@ def transform(examples, image_size=32):
     images = [preprocess(image.convert("RGB")) for image in examples["image"]]
     return {"images": images}
 
-def get_model(image_size=32):
+def get_model(image_size=image_size):
     model = UNet2DModel(
         sample_size=image_size,  
         in_channels=3,  
@@ -63,7 +63,7 @@ def get_model(image_size=32):
     )
     return model
 
-def train(dataset=dataset, device=device, batch_size=64, num_epoch=30):
+def train(dataset=dataset, device=device, batch_size=batch_size, num_epoch=num_epoch):
     dataset.set_transform(transform)
     train_dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, shuffle=True
